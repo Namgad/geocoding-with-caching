@@ -6,7 +6,7 @@ const Joi										=	require('joi');
 
 const locationValidator = (req, res, next) => {
 	let schema = Joi.object().keys({
-		location	:	Joi.string().trim().required()
+		location	:	Joi.array().items(Joi.string().trim().required()).required()
 	});
 
 	let reqBody = { ...req.query };
