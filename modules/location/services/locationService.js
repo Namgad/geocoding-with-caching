@@ -34,7 +34,7 @@ exports.getLocation = async (opts) => {
 			geoCodingResp.data.results.forEach((resp, index) => {
 				myCache.set(noCacheLocation[index], resp.geometry.location);
 
-				response.data.push({place: noCacheLocation[index], location: resp.geometry.location});
+				response.data.push({place: resp.formatted_address, location: resp.geometry.location});
 			});
 		}
 
@@ -55,7 +55,7 @@ exports.getLocation = async (opts) => {
 
 			response.success	=	true;
 			response.data			=	{
-				place		: opts.location,
+				place		: geoCodingResp.data.results[0].formatted_address,
 				location: geoCodingResp.data.results[0].geometry.location
 			};
 		}
@@ -82,6 +82,11 @@ const geoCoding = async (opts) => {
 	let httpResp = await httpService.sendHttpRequest({options});
 
 	console.log(JSON.stringify({EVENT: "Google Geocoding API Response", RESULT: httpResp}));
+
+	if (httpResp.data.status == 'ZERO_RESULTS') {
+		response.error	=	"Cannot geocode requested location";
+		return response;
+	}
 
 	if (httpResp.data.status != 'OK') {
 		response.error	=	httpResp.data.error_message;
